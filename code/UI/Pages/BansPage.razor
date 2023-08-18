@@ -1,0 +1,97 @@
+﻿@using Sandbox.UI;
+@using System.Collections.Generic;
+@using System;
+@using System.Linq;
+@using Sandbox;
+
+@page "/admin/bans"
+@inherits Panel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Pages
+
+@if (List is null)
+    return;
+
+<root>
+    <span class="title">Bans</span>
+    <div class="body">
+        <div class="left">
+            <div class="header">
+                List
+                @*<button class="add" tooltip="Add new permission" onclick=@(()=> GeneratePermission())><i>add</i></button>*@
+            </div>
+            <div class="body">
+                @if (List.Count == 0)
+                {
+                    <span class="empty">The bans list is empty</span>
+                }
+                else
+                {
+                    @foreach (var ban in List)
+                    {
+                        <div class="ban @(Selected == ban ? "active" : "")" onclick=@(()=> Select(ban))>
+                            <span>@ban.User.Name</span>
+                            <i>chevron_right</i>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="right">
+            @if (Selected is null)
+            {
+                <div class="center">
+                    No ban selected
+                </div>
+            }
+            else
+            {
+                <div class="header">
+                    <span class="name">
+                        @Selected.User.Name
+                    </span>
+                </div>
+                <div class="body">
+                    <div class="section">
+                        
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</root>
+
+
+@code {
+    IList<Ban> List => AdminSystem.Instance.Bans;
+
+    Ban Selected { get; set; }
+    string SelectedPermFrom = "";
+    bool EditPermName = false;
+    bool EditPermDescription = false;
+    TextEntry EditPermEntry;
+    TextEntry EditPermDescriptionEntry;
+
+    void Select(Ban selection)
+    {
+        if (Selected == selection)
+            Selected = null;
+        else
+            Selected = selection;
+
+        EditPermName = false;
+        EditPermDescription = false;
+    }
+
+    void DeleteBan()
+    {
+        Ban.UnbanPlayer(Selected.User.SteamId);
+        Selected = null;
+    }
+
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now.ToString() + AdminSystem.Instance.Bans);
+    }
+}

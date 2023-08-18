@@ -1,0 +1,31 @@
+﻿@using Mbk.Admin.UI.Dialog;
+@using Mbk.Admin.UI.Dialog.Childs;
+@using Sandbox.UI;
+@using Mbk.Admin;
+@using Sandbox;
+
+@inherits Panel
+@implements IAdminPlayerCategory
+@attribute [StyleSheet]
+
+<root>
+    <button onclick=@(()=> DialogLayout.Show<KickDialog>(Player))><span><i>meeting_room</i> Kick</span></button>
+    <button onclick=@(()=> DialogLayout.Show<BanDialog>(Player))><span><i>block</i>Ban</span></button>
+    <button onclick=@(()=> DialogLayout.Show<MuteDialog>(Player))><span><i>volume_mute</i>Mute</span></button>
+    <button><span><i>flight_takeoff</i>Go To</span></button>
+    <button><span><i>flight_land</i>Bring</span></button>
+    <button><span><i>movie</i>Return</span></button>
+    <button><span><i>close</i>Slay</span></button>
+    <button><span><i>paragliding</i>Noclip</span></button>
+    <button><span><i>photo_camera</i>Spectate</span></button>
+    <button onclick=@(()=> DialogLayout.Show<SetNameDialog>(Player))><span><i>badge</i>Set Name</span></button>
+    <button><span><i>waving_hand</i>Slap</span></button>
+    <button><span><i>ac_unit</i>Freeze</span></button>
+    <button><span><i>local_fire_department</i>Ignite</span></button>
+    <button onclick=@(()=> DialogLayout.Show<RoleDialog>(Player))><span><i>security</i>Roles</span></button>
+</root>
+
+@code {
+    public string CategoryName => "Management";
+    public IClient Player { get; set; }
+}

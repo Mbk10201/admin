@@ -1,0 +1,35 @@
+﻿@using Sandbox;
+@using Sandbox.UI;
+
+@inherits Panel
+@namespace Mbk.Admin.UI.Childs
+
+
+<root class="@(Expanded ? "expanded" : "")">
+    <div class="cat__header" onclick=@(()=> Expanded = !Expanded)>
+        @Category.CategoryName
+        <i>expand_less</i>
+    </div>
+    <div class="cat__body" @ref="BodyRef"></div>
+</root>
+
+@code {
+    bool Expanded { get; set; } = false;
+    public IAdminPlayerCategory Category { get; set; }
+    Panel BodyRef;
+
+    public PlayerCategory()
+    {
+    }
+
+
+    protected override void OnAfterTreeRender(bool firstTime)
+    {
+        base.OnAfterTreeRender(firstTime);
+
+        if (firstTime)
+        {
+            BodyRef.AddChild(Category as Panel);
+        }
+    }
+}

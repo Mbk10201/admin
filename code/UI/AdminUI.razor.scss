@@ -1,0 +1,209 @@
+﻿@import "UI/Styles/_vars.scss";
+@import "UI/Styles/_globals.scss";
+
+AdminUI {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s ease-in;
+    color: white;
+    font-family: Poppins;
+    backdrop-filter: blur(5px);
+
+    i {
+        font-family: MaterialIcons;
+    }
+
+    .container {
+        height: 70%;
+        width: 65%;
+        border-radius: 15px;
+        backdrop-filter: blur(5px);
+        overflow: hidden;
+        background-color: rgba(45, 45, 45, 0.5);
+        /*/.wrapper {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-image: url( assets/images/Sprinkle.png );
+            background-size: contain;
+            opacity: 0.5;
+        }*/
+
+        .sidenav {
+            height: 100%;
+            width: 7%;
+            //border: 2px solid red;
+            flex-direction: column;
+            transition: all 0.2s ease-in;
+            border: 2px solid rgba(50, 50, 50, 0.5);
+            border-top-left-radius: 15px;
+            border-bottom-left-radius: 15px;
+
+            .header {
+                //height: 15%;
+                width: 100%;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                gap: 10px;
+
+                svg {
+                    height: 50px;
+                    width: 50px;
+                    margin-top: 50px;
+                }
+
+                h1 {
+                    font-size: 35px;
+                    display: none;
+                    opacity: 0;
+                    white-space: nowrap;
+                }
+
+                button {
+                    height: 50px;
+                    width: 50px;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 1px;
+                    border-radius: 10px;
+                    background-color: rgba(50, 50, 50, 0.2);
+
+                    i {
+                        font-size: 40px;
+                        cursor: pointer;
+                    }
+
+                    &:hover {
+                        border: 2px solid white;
+                    }
+                }
+            }
+
+            .navs {
+                height: 85%;
+                width: 100%;
+                flex-direction: column;
+                overflow-y: scroll;
+                top: 80px;
+                gap: 5px;
+
+                a {
+                    height: 50px;
+                    width: 100%;
+                    //border: 2px solid green;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+
+                    span {
+                        display: none;
+                        opacity: 0;
+                        white-space: nowrap;
+                        font-size: 25px;
+                    }
+
+                    i {
+                        font-size: 30px;
+                    }
+
+                    .activebadge {
+                        display: none;
+                        position: absolute;
+                        right: 5px;
+                        height: 80%;
+                        width: 5px;
+                        border-radius: 5px;
+                        background-color: yellow;
+                    }
+
+                    &:hover {
+                        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.8);
+                    }
+
+                    &.active {
+                        .activebadge {
+                            display: flex;
+                        }
+                    }
+                }
+            }
+        }
+
+        .content {
+            height: 100%;
+            width: 93%;
+            //border: 2px solid blue;
+            padding: 30px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            align-items: center;
+            justify-content: center;
+            padding: 1px;
+            border-radius: 10px;
+            background-color: rgba(50, 50, 50, 0.2);
+            transition: all 0.2s ease-in;
+
+            i {
+                font-size: 40px;
+                cursor: pointer;
+            }
+
+            &:hover {
+                transform: scale(1);
+                background-color: crimson;
+            }
+        }
+    }
+
+
+    &.expanded {
+        .sidenav {
+            width: 20%;
+
+            .header {
+                h1 {
+                    display: flex;
+                    opacity: 1;
+                }
+
+                button {
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                }
+            }
+
+            .navs {
+                a {
+                    i {
+                        display: none;
+                    }
+
+                    span {
+                        display: flex;
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+
+        .content {
+            width: 80%;
+        }
+    }
+
+    &.open {
+        opacity: 1;
+        pointer-events: all;
+    }
+}

@@ -1,0 +1,129 @@
+﻿@using Mbk.Admin.UI.Utils;
+@using Mbk.Admin.UI.Dialog;
+@using Sandbox;
+@using Sandbox.UI;
+@using System;
+@using System.Linq;
+@using System.Collections.Generic;
+
+@inherits NavigatorPanel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI
+
+<root>
+    <div class="container">
+        <DialogLayout></DialogLayout>
+        <div class="wrapper"></div>
+        <div class="sidenav">
+            <div class="header">
+                <svg src="assets/images/logo.svg" color="white"/>
+                <h1>Admin</h1>
+                <button>
+                    <i @onclick=@(()=> IsExpanded = !IsExpanded) tooltip="@(IsExpanded ? "Close" : "Expand")">@(IsExpanded ? "chevron_left" : "chevron_right")</i>
+                </button>
+            </div>
+            <div class="navs">
+                <a href="/admin/home">
+                    <i>home</i>
+                    <span>Home</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                <a href="/admin/settings">
+                    <i>settings</i>
+                    <span>Settings</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                <a href="/admin/players">
+                    <i>group</i>
+                    <span>Players</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                <a href="/admin/bans">
+                    <i>cancel</i>
+                    <span>Bans</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                <a href="/admin/commands">
+                    <i>keyboard</i>
+                    <span>Commands</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                <a href="/admin/roles">
+                    <i>security</i>
+                    <span>Roles</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                <a href="/admin/permissions">
+                    <i>category</i>
+                    <span>Permissions</span>
+                    <div class="activebadge"></div>
+                </a>
+
+                @foreach (var item in Pages)
+                {
+                    <a href=@item.HRef>
+                        <i>@item.Icon</i>
+                        <span>@item.PageName</span>
+                        <div class="activebadge"></div>
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="content" slot="navigator-canvas"></div>
+        <button class="close">
+            <i @onclick=@(()=> Close()) tooltip="Close">close</i>
+        </button>
+    </div>
+</root>
+
+@code {
+    public bool IsOpen = false;
+    public bool IsExpanded = false;
+    public static AdminUI Instance { get; private set; }
+    public List<IAdminPage> Pages { get; set; } = new();
+
+    public AdminUI()
+    {
+        Instance = this;
+        DefaultUrl = "/admin/home";
+
+        foreach (var type in TypeLibrary.GetTypes().Where(x => (x.IsClass)))
+        {
+            if (type.Interfaces.Count(x => x.Name == "IAdminPage") > 0)
+            {
+                var page = (IAdminPage)TypeLibrary.Create(type.TargetType.Name, type.TargetType);
+                Pages.Add(page);
+            }
+        }
+    }
+
+    void Close()
+    {
+        IsOpen = false;
+        SetClass("open", false);
+    }
+
+    public void Toggle()
+    {
+        IsOpen = !IsOpen;
+        SetClass("open", IsOpen);
+    }
+
+    public override void Tick()
+    {
+        SetClass("expanded", IsExpanded);
+
+        base.Tick();
+    }
+
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now.ToString());
+    }
+}

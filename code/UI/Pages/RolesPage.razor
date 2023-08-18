@@ -1,0 +1,259 @@
+﻿@using Sandbox.UI;
+@using System.Collections.Generic;
+@using System;
+@using System.Linq;
+@using Sandbox;
+
+@page "/admin/roles"
+@inherits Panel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Pages
+
+@if (List is null)
+    return;
+
+<root>
+    <span class="title">Roles</span>
+    <div class="body">
+        <div class="left">
+            <div class="header">
+                List
+                <button class="add" tooltip="Add new role" onclick=@(()=> GenerateRole())><i>add</i></button>
+            </div>
+            <div class="body">
+                @if (List.Count == 0)
+                {
+                    <span class="empty">The roles list is empty.</span>
+                }
+                else
+                {
+                    @foreach (var role in List)
+                    {
+                        <div class="role @(Selected == role ? "active" : "")" onclick=@(()=> Select(role))>
+                            <span>@role.Name</span>
+                            <i>chevron_right</i>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="right">
+            @if (Selected is null)
+            {
+                <div class="empty">
+                    No role selected
+                </div>
+            }
+            else
+            {
+                <div class="header">
+                    @if (!EditRoleName)
+                    {
+                        <span class="name">
+                            @Selected.Name
+                        </span>
+                        <button>
+                            <i onclick=@(()=> EditRoleName = true)>edit</i>
+                        </button>
+                    }
+                    else
+                    {
+                        <TextEntry @ref="EditRoleEntry" value="@Selected.Name"></TextEntry>
+                        <button>
+                            <i onclick=@(()=> SaveRoleName())>save</i>
+                        </button>
+                    }
+                    <button class="delete" tooltip="Delete role" onclick=@(()=> DeleteRole())><i>delete</i></button>
+                </div>
+                <div class="body">
+                    <div class="section">
+                        <span class="name">Immunity</span>
+                        @Selected.ImmunityLevel
+                    </div>
+                    <div class="section">
+                        <span class="name">Permissions</span>
+                        <div class="permissions">
+                            <div class="current">
+                                <span class="name">Current</span>
+                                <div class="content">
+                                    @if(Selected.Permissions.Count > 0)
+                                    {
+                                        @foreach (var perm in Selected.Permissions)
+                                        {
+                                            Permission Ref = Permission.GetRef(perm);
+
+                                            if (Ref is not null)
+                                            {
+                                                <div class="permission @(PermSelected == Ref ? "active" : "")" onclick=@(()=> SelectPermission(Ref, "current")) ondoubleclick=@(()=> TransferFromCurrent(Ref))>
+                                                    <span>@Ref.Name</span>
+                                                    <i>chevron_right</i>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="empty">The current role has no permissions.</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="actions">
+                                    @if (SelectedPermFrom == "")
+                                    {
+                                        <button class="disabled">
+                                            <i>near_me_disabled</i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button tooltip="Transfer" onclick=@(()=> Switch())>
+                                            <i>@(SelectedPermFrom == "current" ? "arrow_forward" : "arrow_back")</i>
+                                        </button>
+                                    }
+                            </div>
+                            <div class="available">
+                                <span class="name">Availables</span>
+                                <div class="content">
+                                    @if (AdminSystem.Instance.Permissions.Count > 0 || AdminSystem.Instance.Permissions == null)
+                                    {
+                                        @foreach (var perm in AdminSystem.Instance.Permissions.Except(Selected.GetPermissionsByRef()))
+                                        {
+                                            if (perm is not null)
+                                            {
+                                                <div class="permission @(PermSelected == perm ? "active" : "")" onclick=@(()=> SelectPermission(perm, "available")) ondoubleclick=@(()=> TransferFromAvailable(perm))>
+                                                    <span>@perm.Name</span>
+                                                    <i>chevron_left</i>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="empty">There is not more or no available permissions.</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <span class="name">Members</span>
+                        <div class="members">
+                            @{
+                                var list = Users.Where(x => x.Roles.Contains(Selected.Id)).ToList();
+
+                                if( list == null || list.Count == 0)
+                                {
+                                    <span class="empty">There is no members with this current role.</span>
+                                }
+                                else
+                                {
+                                    foreach(var user in list)
+                                    {
+                                        <div class="member">@user.Name</div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</root>
+
+
+@code {
+    IList<Role> List => AdminSystem.Instance.Roles.OrderByDescending(x => x.ImmunityLevel).ToList();
+    IList<User> Users => AdminSystem.Instance.Users;
+    Role Selected { get; set; }
+    Permission PermSelected { get; set; }
+    string SelectedPermFrom = "";
+    bool EditRoleName = false;
+    TextEntry EditRoleEntry;
+
+    void GenerateRole()
+    {
+        string name = $"Auto generated {Game.Random.Int(100)}";
+        Role.Create(name);
+
+        Log.Info(name);
+
+        Selected = Role.GetRef(name);
+    }
+
+    void Select( Role selection )
+    {
+        if (Selected == selection)
+            Selected = null;
+        else
+            Selected = selection;
+
+        EditRoleName = false;
+        PermSelected = null;
+    }
+
+    void SelectPermission( Permission selection, string from )
+    {
+        if (PermSelected == selection)
+        {
+            PermSelected = null;
+            SelectedPermFrom = "";
+        }
+        else
+        {
+            PermSelected = selection;
+            SelectedPermFrom = from;
+        }
+    }
+
+    void Switch()
+    {
+        if (PermSelected == null)
+            return;
+
+        if (SelectedPermFrom == "current")
+            TransferFromCurrent(PermSelected);
+        else
+            TransferFromAvailable(PermSelected);
+    }
+
+    void TransferFromCurrent(Permission selection)
+    {
+        Role.RemovePermission(Selected.Id, selection.Id);
+        PermSelected = null;
+        SelectedPermFrom = "";
+
+        AdminSystem.SaveRoles();
+    }
+
+    void TransferFromAvailable( Permission selection )
+    {
+        Role.AddPermission(Selected.Id, selection.Id);
+        PermSelected = null;
+        SelectedPermFrom = "";
+
+        Log.Info(selection.Id);
+
+        AdminSystem.SaveRoles();
+    }
+
+    void SaveRoleName()
+    {
+        Role.UpdateName(Selected.Id, EditRoleEntry.Text);
+        EditRoleName = false;
+        AdminSystem.SaveRoles();
+    }
+
+    void DeleteRole()
+    {
+        Log.Info(Selected.Id);
+        Role.Delete(Selected.Id);
+        Selected = null;
+    }
+
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now.ToString() + AdminSystem.Instance.Roles);
+    }
+}

@@ -1,0 +1,177 @@
+﻿@using Sandbox.UI;
+@using System.Collections.Generic;
+@using System;
+@using System.Linq;
+@using Sandbox;
+
+@page "/admin/commands"
+@inherits Panel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Pages
+
+@if (List is null)
+    return;
+
+<root>
+    <span class="title">Commands</span>
+    <div class="body">
+        <div class="left">
+            <div class="header">
+                List
+                <button class="add" tooltip="Add new permission" onclick=@(()=> GeneratePermission())><i>add</i></button>
+            </div>
+            <div class="body">
+                @if (List.Count == 0)
+                {
+                    <span class="empty">The permission list is empty</span>
+                }
+                else
+                {
+                    @foreach (var perm in List)
+                    {
+                        <div class="perm @(Selected == perm ? "active" : "")" onclick=@(()=> Select(perm))>
+                            <span>@perm.Name</span>
+                            <i>chevron_right</i>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="right">
+            @if (Selected is null)
+            {
+                <div class="center">
+                    No permission selected
+                </div>
+            }
+            else
+            {
+                <div class="header">
+                    <div>
+                        @if (!EditPermName)
+                        {
+                            <span class="name">
+                                @Selected.Name
+                            </span>
+                            <button>
+                                <i onclick=@(()=> EditPermName = true)>edit</i>
+                            </button>
+                        }
+                        else
+                        {
+                            <TextEntry @ref="EditPermEntry" value="@Selected.Name"></TextEntry>
+                            <button>
+                                <i onclick=@(()=> SavePermissionName())>save</i>
+                            </button>
+                        }
+                        <button class="delete @(!Selected.CanBeRemoved ? "disabled":"")" tooltip="Delete role" onclick=@(()=> DeletePermission())><i>delete</i></button>
+                    </div>
+                    <div>
+                        @if (!EditPermDescription)
+                        {
+                            <span class="description">
+                                @Selected.Description
+                            </span>
+                            <button>
+                                <i onclick=@(()=> EditPermDescription = true)>edit</i>
+                            </button>
+                        }
+                        else
+                        {
+                            <TextEntry style="font-size:15px;" @ref="EditPermDescriptionEntry" value="@Selected.Description"></TextEntry>
+                            <button>
+                                <i onclick=@(()=> SavePermissionDescription())>save</i>
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="body">
+                    <div class="section">
+                        <div class="name">Roles <span style="font-size:15px;opacity:0.5;align-self:flex-end;margin-left:5px;">Using this permission</span></div>
+                        <div class="roles">
+
+                            @if (GetRoleParenting().Count > 0)
+                            {
+                                @foreach (var role in GetRoleParenting())
+                                {
+                                    <span class="role">@role.Name</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="empty">There is no roles currently using this permission.</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</root>
+
+
+@code {
+    IList<Permission> List => AdminSystem.Instance.Permissions;
+
+    Permission Selected { get; set; }
+    string SelectedPermFrom = "";
+    bool EditPermName = false;
+    bool EditPermDescription = false;
+    TextEntry EditPermEntry;
+    TextEntry EditPermDescriptionEntry;
+
+    void GeneratePermission()
+    {
+        string name = $"Auto generated {Game.Random.Int(100)}";
+        Permission.Create(name);
+
+        Selected = Permission.GetRef(name);
+    }
+
+    void Select(Permission selection)
+    {
+        if (Selected == selection)
+            Selected = null;
+        else
+            Selected = selection;
+
+        EditPermName = false;
+        EditPermDescription = false;
+    }
+
+    void SavePermissionName()
+    {
+        Permission.UpdateName(Selected.Id, EditPermEntry.Text);
+        EditPermName = false;
+
+        AdminSystem.SavePermissions();
+    }
+
+    void SavePermissionDescription()
+    {
+        Permission.UpdateDescription(Selected.Id, EditPermDescriptionEntry.Text);
+        EditPermName = false;
+
+        AdminSystem.SavePermissions();
+    }
+
+    void DeletePermission()
+    {
+        Permission.Delete(Selected.Id);
+        Selected = null;
+    }
+
+    IList<Role> GetRoleParenting()
+    {
+        if (Selected is null)
+            return null;
+
+        return AdminSystem.Instance.Roles.Where(x => x.Permissions.Contains(Selected.Id)).ToList();
+    }
+
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now.ToString() + AdminSystem.Instance.Permissions);
+    }
+}

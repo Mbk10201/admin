@@ -1,0 +1,41 @@
+ManagementCategory {
+    height: 100%;
+    width: 100%;
+    padding: 30px;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    button {
+        padding: 25px 80px;
+        border-radius: 10px;
+        background-color: rgba(25, 25, 25, .64);
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease-in;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid transparent;
+
+        span {
+            position: absolute;
+            gap: 5px;
+        }
+
+        i {
+            font-family: MaterialIcons;
+            font-size: 25px;
+            transition: all 0.2s ease-in;
+        }
+
+        &:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 40px rgba(0,0,0,0.3);
+            border-color:dodgerblue;
+
+            i {
+                //color: yellow;
+            }
+        }
+    }
+}

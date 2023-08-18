@@ -1,0 +1,23 @@
+﻿@using Sandbox.UI;
+@using Sandbox;
+
+@inherits Panel
+@implements IDialog
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Dialog.Childs
+
+<root>
+    <span class="title">Kick</span>
+    <div class="dialogbody">
+        <p>Target: @Player?.Name</p>
+        <p>Please enter a reason </p>
+        <button class="submit">submit</button>
+    </div>
+    <button class="close">
+        <i @onclick=@(()=> Delete()) tooltip="Close">close</i>
+    </button>
+</root>
+
+@code {
+    public IClient Player { get; set; }
+}

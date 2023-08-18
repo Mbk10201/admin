@@ -1,0 +1,89 @@
+﻿@using Mbk.Admin.UI.Childs;
+@using Sandbox.UI;
+@using System;
+@using System.Linq;
+@using System.Collections.Generic;
+@using Sandbox;
+
+@page "/admin/players"
+@inherits Panel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Pages
+
+<root>
+    <span class="title">Players page</span>
+    <div class="body">
+        <div class="left">
+            <div class="header">
+                List
+            </div>
+            <div class="body">
+                @foreach (var user in Game.Clients)
+                {
+                    <div class="user @(Selected == user ? "active" : "")" onclick=@(()=> Select(user))>
+                        <span>@user.Name</span>
+                        <i>chevron_right</i>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="right">
+            @if (Selected is null)
+            {
+                <div class="empty">
+                    No player selected
+                </div>
+            }
+            else
+            {
+                <div class="header">
+                    <span class="name">
+                        @Selected.Name
+                    </span>
+                </div>
+                <div class="body">
+
+                    @foreach (var x in Categories)
+                    {
+                        <PlayerCategory Category="@x"/>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</root>
+
+
+@code {
+    IClient Selected { get; set; }
+    IList<IAdminPlayerCategory> Categories { get; set; } = new List<IAdminPlayerCategory>();
+
+    public PlayersPage()
+    {
+        foreach (var type in TypeLibrary.GetTypes().Where(x => (x.IsClass)))
+        {
+            if (type.Interfaces.Count(x => x.Name == "IAdminPlayerCategory") > 0)
+            {
+                var cat = (IAdminPlayerCategory)TypeLibrary.Create(type.TargetType.Name, type.TargetType);
+                Categories.Add(cat);
+            }
+        }
+    }
+
+    void Select(IClient selection)
+    {
+        if (Selected == selection)
+            Selected = null;
+        else
+            Selected = selection;
+
+        foreach (var x in Categories)
+            x.Player = Selected;
+    }
+
+
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now.ToString() + Game.Clients);
+    }
+}

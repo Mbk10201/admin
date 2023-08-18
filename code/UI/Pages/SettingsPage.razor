@@ -1,0 +1,19 @@
+﻿@using Sandbox.UI;
+@using System;
+
+@page "/admin/settings"
+@inherits Panel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Pages
+
+<root>
+    Settings page
+</root>
+
+
+@code {
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now);
+    }
+}
