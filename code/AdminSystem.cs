@@ -168,7 +168,7 @@ public partial class AdminSystem : Entity
 				Log.Info( record );
 				Log.Info( client );
 
-				User.Kick( To.Single( client ) );
+				client.Kick();
 			}
 		}
 	}

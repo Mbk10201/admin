@@ -78,8 +78,10 @@ public partial class User : BaseNetworkable
 	}
 
 	[ClientRpc]
-	public static void Kick( )
+	public static void KickPlayer( )
 	{
+		Log.Info( "Kicked" );
+		
 		Game.LocalClient.Kick( );
 	}
 }
