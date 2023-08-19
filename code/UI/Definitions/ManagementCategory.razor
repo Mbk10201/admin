@@ -3,13 +3,14 @@
 @using Sandbox.UI;
 @using Mbk.Admin;
 @using Sandbox;
+@using System.Linq;
 
 @inherits Panel
 @implements IAdminPlayerCategory
 @attribute [StyleSheet]
 
 <root>
-    <button onclick=@(()=> DialogLayout.Show<KickDialog>(Player))><span><i>meeting_room</i> Kick</span></button>
+    @*<button onclick=@(()=> DialogLayout.Show<KickDialog>(Player))><span><i>meeting_room</i> Kick</span></button>
     <button onclick=@(()=> DialogLayout.Show<BanDialog>(Player))><span><i>block</i>Ban</span></button>
     <button onclick=@(()=> DialogLayout.Show<MuteDialog>(Player))><span><i>volume_mute</i>Mute</span></button>
     <button><span><i>flight_takeoff</i>Go To</span></button>
@@ -22,7 +23,17 @@
     <button><span><i>waving_hand</i>Slap</span></button>
     <button><span><i>ac_unit</i>Freeze</span></button>
     <button><span><i>local_fire_department</i>Ignite</span></button>
-    <button onclick=@(()=> DialogLayout.Show<RoleDialog>(Player))><span><i>security</i>Roles</span></button>
+    <button onclick=@(()=> DialogLayout.Show<RoleDialog>(Player))><span><i>security</i>Roles</span></button>*@
+    
+    @foreach(var command in Game.LocalClient.GetCommandsAccess().Where(x => x.ClientAction == true))
+    {
+        <button>
+            <span>
+                <i>@command.Icon</i>
+                @command.Name
+            </span>
+        </button>
+    }
 </root>
 
 @code {

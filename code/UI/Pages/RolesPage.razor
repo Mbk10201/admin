@@ -223,8 +223,6 @@
         Role.RemovePermission(Selected.Id, selection.Id);
         PermSelected = null;
         SelectedPermFrom = "";
-
-        AdminSystem.SaveRoles();
     }
 
     void TransferFromAvailable( Permission selection )
@@ -232,22 +230,16 @@
         Role.AddPermission(Selected.Id, selection.Id);
         PermSelected = null;
         SelectedPermFrom = "";
-
-        Log.Info(selection.Id);
-
-        AdminSystem.SaveRoles();
     }
 
     void SaveRoleName()
     {
         Role.UpdateName(Selected.Id, EditRoleEntry.Text);
         EditRoleName = false;
-        AdminSystem.SaveRoles();
     }
 
     void DeleteRole()
     {
-        Log.Info(Selected.Id);
         Role.Delete(Selected.Id);
         Selected = null;
     }

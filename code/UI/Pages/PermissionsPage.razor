@@ -91,9 +91,9 @@
                         <div class="name">Roles <span style="font-size:15px;opacity:0.5;align-self:flex-end;margin-left:5px;">Using this permission</span></div>
                         <div class="roles">
 
-                            @if (GetRoleParenting().Count > 0)
+                            @if (GetRolesParenting().Count > 0)
                             {
-                                @foreach (var role in GetRoleParenting())
+                                @foreach (var role in GetRolesParenting())
                                 {
                                     <span class="role">@role.Name</span>
                                 }
@@ -102,6 +102,71 @@
                             {
                                 <span class="empty">There is no roles currently using this permission.</span>
                             }
+                        </div>
+                    </div>
+                    <div class="section">
+                        <span class="name">Commands</span>
+                        <div class="commands">
+                            <div class="current">
+                                <span class="name">Current</span>
+                                <div class="content">
+                                    @if (Selected.Commands.Count > 0)
+                                    {
+                                        @foreach (var command in Selected.Commands)
+                                        {
+                                            Command Ref = Command.GetRef(command);
+
+                                            if (Ref is not null)
+                                            {
+                                                <div class="command @(CommandSelected == Ref ? "active" : "")" onclick=@(()=> SelectCommand(Ref, "current")) ondoubleclick=@(()=> TransferFromCurrent(Ref))>
+                                                    <span>@Ref.Name</span>
+                                                    <i>chevron_right</i>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="empty">The current permission has no commands access.</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="actions">
+                                @if (SelectedPermFrom == "")
+                                {
+                                    <button class="disabled">
+                                        <i>near_me_disabled</i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button tooltip="Transfer" onclick=@(()=> Switch())>
+                                        <i>@(SelectedPermFrom == "current" ? "arrow_forward" : "arrow_back")</i>
+                                    </button>
+                                }
+                            </div>
+                            <div class="available">
+                                <span class="name">Availables</span>
+                                <div class="content">
+                                    @if (AdminSystem.Instance.Commands.Count > 0 || AdminSystem.Instance.Commands == null)
+                                    {
+                                        @foreach (var command in AdminSystem.Instance.Commands.Except(Selected.GetCommandsByRef()))
+                                        {
+                                            if (command is not null)
+                                            {
+                                                <div class="command @(CommandSelected == command ? "active" : "")" onclick=@(()=> SelectCommand(command, "available")) ondoubleclick=@(()=> TransferFromAvailable(command))>
+                                                    <span>@command.Name</span>
+                                                    <i>chevron_left</i>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="empty">There is not more or no available permissions.</span>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -120,6 +185,9 @@
     bool EditPermDescription = false;
     TextEntry EditPermEntry;
     TextEntry EditPermDescriptionEntry;
+
+    Command CommandSelected { get; set; }
+    string SelectedCommandFrom = "";
 
     void GeneratePermission()
     {
@@ -140,20 +208,30 @@
         EditPermDescription = false;
     }
 
+    void SelectCommand(Command selection, string from)
+    {
+        if (CommandSelected == selection)
+        {
+            CommandSelected = null;
+            SelectedCommandFrom = "";
+        }
+        else
+        {
+            CommandSelected = selection;
+            SelectedCommandFrom = from;
+        }
+    }
+
     void SavePermissionName()
     {
         Permission.UpdateName(Selected.Id, EditPermEntry.Text);
         EditPermName = false;
-
-        AdminSystem.SavePermissions();
     }
 
     void SavePermissionDescription()
     {
         Permission.UpdateDescription(Selected.Id, EditPermDescriptionEntry.Text);
         EditPermName = false;
-
-        AdminSystem.SavePermissions();
     }
 
     void DeletePermission()
@@ -162,12 +240,37 @@
         Selected = null;
     }
 
-    IList<Role> GetRoleParenting()
+    IList<Role> GetRolesParenting()
     {
         if (Selected is null)
             return null;
 
         return AdminSystem.Instance.Roles.Where(x => x.Permissions.Contains(Selected.Id)).ToList();
+    }
+
+    void Switch()
+    {
+        if (CommandSelected == null)
+            return;
+
+        if (SelectedCommandFrom == "current")
+            TransferFromCurrent(CommandSelected);
+        else
+            TransferFromAvailable(CommandSelected);
+    }
+
+    void TransferFromCurrent(Command selection)
+    {
+        Permission.RemoveCommand(Selected.Id, selection.Name);
+        CommandSelected = null;
+        SelectedCommandFrom = "";
+    }
+
+    void TransferFromAvailable(Command selection)
+    {
+        Permission.AddCommand(Selected.Id, selection.Name);
+        CommandSelected = null;
+        SelectedCommandFrom = "";
     }
 
     protected override int BuildHash()

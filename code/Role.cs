@@ -6,6 +6,7 @@ namespace Mbk.Admin;
 
 public partial class Role : BaseNetworkable
 {
+
 	/// <summary>
 	/// The unique ID of this role
 	/// </summary>
@@ -111,13 +112,45 @@ public partial class Role : BaseNetworkable
 		return roles;
 	}
 
-	[ConCmd.Server("createrole")] public static void Create( string name, int immunity = 25 ) { _ = new Role( name, immunity ); }
+	[ConCmd.Server("createrole")] 
+	public static void Create( string name, int immunity = 25 ) 
+	{ 
+		_ = new Role( name, immunity );
+		AdminSystem.SaveRoles();
+	}
 
-	[ConCmd.Server("updatename")] public static void UpdateName( long roleid, string name ) { GetRef( roleid ).Name = name; }
+	[ConCmd.Server("updatename")] 
+	public static void UpdateName( long roleid, string name ) 
+	{ 
+		GetRef( roleid ).Name = name;
+		AdminSystem.SaveRoles();
+	}
 
-	[ConCmd.Server("deleterole")] public static void Delete( long roleid ) { AdminSystem.Instance.Roles.Remove( GetRef( roleid ) ); }
-	[ConCmd.Server("deleterole")] public static void Delete( string rolename ) { AdminSystem.Instance.Roles.Remove( GetRef( rolename ) ); }
+	[ConCmd.Server("deleterole")] 
+	public static void Delete( long roleid ) 
+	{ 
+		AdminSystem.Instance.Roles.Remove( GetRef( roleid ) );
+		AdminSystem.SaveRoles();
+	}
 
-	[ConCmd.Server("removepermission")] public static void RemovePermission( long roleid, long permid ) { GetRef( roleid ).RemovePermission( permid ); }
-	[ConCmd.Server("addpermission")] public static void AddPermission( long roleid, long permid ) { GetRef( roleid ).AddPermission( permid ); }
+	[ConCmd.Server("deleterole")] 
+	public static void Delete( string rolename ) 
+	{ 
+		AdminSystem.Instance.Roles.Remove( GetRef( rolename ) );
+		AdminSystem.SaveRoles();
+	}
+
+	[ConCmd.Server("removepermission")] 
+	public static void RemovePermission( long roleid, long permid ) 
+	{ 
+		GetRef( roleid ).RemovePermission( permid );
+		AdminSystem.SaveRoles();
+	}
+
+	[ConCmd.Server("addpermission")] 
+	public static void AddPermission( long roleid, long permid ) 
+	{ 
+		GetRef( roleid ).AddPermission( permid );
+		AdminSystem.SaveRoles();
+	}
 }

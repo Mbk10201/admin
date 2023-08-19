@@ -1,5 +1,6 @@
 ﻿using Sandbox;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Mbk.Admin;
@@ -30,6 +31,11 @@ public partial class Permission : BaseNetworkable
 	[Net]
 	public bool CanBeRemoved { get; set; } = true;
 
+	/// <summary>
+	/// The list of commands thats this permission has .
+	/// </summary>
+	[Net] public IList<string> Commands { get; private set; }
+
 	public Permission() 
 	{
 	}
@@ -44,13 +50,89 @@ public partial class Permission : BaseNetworkable
 		AdminSystem.Instance.Permissions.Add( this );
 	}
 
+	public void AddCommand( string name )
+	{
+		Commands.Add( name );
+	}
+
+	public void RemoveCommand( string name )
+	{
+		Commands.Remove( name );
+	}
+
+	public IList<Command> GetCommandsByRef()
+	{
+		IList<Command> list = new List<Command>();
+
+		foreach ( var command in Commands )
+		{
+			var Ref = Command.GetRef( command );
+
+			if ( Ref is not null )
+				list.Add( Ref );
+		}
+
+		return list;
+	}
+
 	public static Permission GetRef( long id ) => AdminSystem.Instance.Permissions.SingleOrDefault( x => x.Id == id );
 	public static Permission GetRef( string name ) => AdminSystem.Instance.Permissions.SingleOrDefault( x => x.Name == name );
 
-	[ConCmd.Server("createpermission")] public static void Create( string name, string description = "" ) { _ = new Permission( name, description ); }
-	[ConCmd.Server("updatepermissionname")] public static void UpdateName( long permid, string name ) { GetRef( permid ).Name = name; }
-	[ConCmd.Server("updatepermissiondescription")] public static void UpdateDescription( long permid, string description ) { GetRef( permid ).Description = description; }
+	public static IList<Permission> GetRef( IList<long> list )
+	{
+		IList<Permission> permissions = new List<Permission>();
 
-	[ConCmd.Server("deletepermission")] public static void Delete( long permid ) { AdminSystem.Instance.Permissions.Remove( GetRef( permid ) ); }
-	[ConCmd.Server("deletepermission")] public static void Delete( string permname ) { AdminSystem.Instance.Permissions.Remove( GetRef( permname ) ); }
+		foreach ( var perm in list )
+			permissions.Add( GetRef( perm ) );
+
+		return permissions;
+	}
+
+	[ConCmd.Server("createpermission")] 
+	public static void Create( string name, string description = "" ) 
+	{ 
+		_ = new Permission( name, description );
+		AdminSystem.SavePermissions();
+	}
+
+	[ConCmd.Server("updatepermissionname")] 
+	public static void UpdateName( long permid, string name ) 
+	{ 
+		GetRef( permid ).Name = name;
+		AdminSystem.SavePermissions();
+	}
+
+	[ConCmd.Server("updatepermissiondescription")] 
+	public static void UpdateDescription( long permid, string description ) 
+	{ 
+		GetRef( permid ).Description = description;
+		AdminSystem.SavePermissions();
+	}
+
+	[ConCmd.Server("deletepermission")] 
+	public static void Delete( long permid ) 
+	{ 
+		AdminSystem.Instance.Permissions.Remove( GetRef( permid ) );
+		AdminSystem.SavePermissions();
+	}
+	[ConCmd.Server("deletepermission")] 
+	public static void Delete( string permname ) 
+	{ 
+		AdminSystem.Instance.Permissions.Remove( GetRef( permname ) );
+		AdminSystem.SavePermissions();
+	}
+
+	[ConCmd.Server( "removecommand" )] 
+	public static void RemoveCommand( long permid, string name ) 
+	{ 
+		GetRef( permid ).RemoveCommand( name );
+		AdminSystem.SavePermissions();
+	}
+
+	[ConCmd.Server( "addcommand" )] 
+	public static void AddCommand( long permid, string name ) 
+	{ 
+		GetRef( permid ).AddCommand( name );
+		AdminSystem.SavePermissions();
+	}
 }

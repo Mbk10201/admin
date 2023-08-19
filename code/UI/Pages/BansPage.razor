@@ -51,10 +51,12 @@
                     <span class="name">
                         @Selected.User.Name
                     </span>
+                    <button class="delete" tooltip="Delete Ban" onclick=@(()=> DeleteBan())><i>delete</i></button>
                 </div>
                 <div class="body">
                     <div class="section">
-                        
+                        <span>@Selected.Reason</span>
+                        <span>@Selected.Timeout</span>
                     </div>
                 </div>
             }
@@ -86,7 +88,7 @@
 
     void DeleteBan()
     {
-        Ban.UnbanPlayer(Selected.User.SteamId);
+        Commands.Unban(Selected.User.SteamId);
         Selected = null;
     }
 

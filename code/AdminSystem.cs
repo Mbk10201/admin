@@ -22,21 +22,11 @@ public partial class AdminSystem : Entity
 
 	[Net] public IList<Permission> Permissions { get; set; }
 
-	[Net] public IList<CommandAttribute> Commands { get; set; }
+	[Net] public IList<Command> Commands { get; set; }
 
 	[Net] public IList<User> Users { get; set; }
 
 	[Net] public IList<Ban> Bans { get; set; }
-
-	public AdminSystem()
-	{
-		Instance = this;
-
-		if ( Game.IsServer )
-		{
-			Configure();
-		}
-	}
 
 	public static void SaveRoles()
 	{
@@ -56,6 +46,16 @@ public partial class AdminSystem : Entity
 	public static void SaveBans()
 	{
 		fs.WriteJson( BANFILE, Instance.Bans );
+	}
+
+	public AdminSystem()
+	{
+		Instance = this;
+
+		if ( Game.IsServer )
+		{
+			Configure();
+		}
 	}
 
 	[GameEvent.Entity.PostSpawn]
@@ -84,7 +84,7 @@ public partial class AdminSystem : Entity
 		Permissions = new List<Permission>();
 		Permissions?.Clear();
 
-		Commands = new List<CommandAttribute>();
+		Commands = new List<Command>();
 		Commands?.Clear();
 
 		Users = new List<User>();
@@ -92,6 +92,8 @@ public partial class AdminSystem : Entity
 
 		Bans = new List<Ban>();
 		Bans?.Clear();
+
+		Command.Load();
 
 		if ( !fs.FileExists( ROLESFILE ) )
 		{
@@ -139,6 +141,8 @@ public partial class AdminSystem : Entity
 
 	public static void Toggle() => AdminUI.Instance.Toggle();
 
+	public static void RegisterCommand( Command command ) => Instance.Commands.Add( command );
+
 	[GameEvent.Client.Frame]
 	public void Frame()
 	{
@@ -156,8 +160,8 @@ public partial class AdminSystem : Entity
 		if ( user is null )
 		{
 			Instance.Users.Add( new(client.SteamId, client.Name));
+			AdminSystem.SaveUsers();
 			Log.Info( "[AdminSystem] new user detected & added" );
-			SaveUsers();
 		}
 		else
 		{

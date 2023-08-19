@@ -20,23 +20,4 @@ public partial class Ban : BaseNetworkable
 		Reason = reason;
 		Timeout = timeout;
 	}
-
-	[ConCmd.Server( "Ban")]
-	public static void BanPlayer( long steamid, string reason, int timeout)
-	{
-		AdminSystem.Instance.Bans.Add( new Ban(User.Get(steamid), reason, timeout ) );
-		AdminSystem.SaveBans();
-	}
-
-	[ConCmd.Server( "Unban" )]
-	public static void UnbanPlayer( long steamid )
-	{
-		var record = AdminSystem.Instance.Bans.SingleOrDefault( x => x.User.SteamId == steamid );
-
-		if( record != null )
-		{
-			AdminSystem.Instance.Bans.Remove( record );
-			AdminSystem.SaveBans();
-		}
-	}
 }
