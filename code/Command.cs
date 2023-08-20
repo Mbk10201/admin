@@ -26,7 +26,12 @@ public partial class Command : BaseNetworkable
 	/// <summary>
 	/// Is this command for client targeting (Ex: Ban, Kick, Etc...)
 	/// </summary>
-	[Net, JsonIgnore] public bool ClientAction { get; private set; } = false;
+	[Net, JsonIgnore] public bool ClientAction { get; private set; }
+
+	/// <summary>
+	/// The client who has called this command.
+	/// </summary>
+	public static IClient Caller { get; set; } = null;
 
 	[JsonIgnore] public CommandAttribute Attribute { get; set; }
 	[JsonIgnore] public MethodDescription Method { get; set; }
@@ -85,13 +90,9 @@ public partial class Command : BaseNetworkable
 
 
 	[ConCmd.Server( "RunCommand" )]
-	public static void Run( string name, string[] args )
+	public static void Run( string name, string p1 = "", string p2 = "", string p3 = "", string p4 = "", string p5 = "", string p6 = "" )
 	{
-		Game.AssertServer();
-
-		foreach ( var arg in args )
-			Log.Info( arg );
-
+		var client = ConsoleSystem.Caller;
 		var command = AdminSystem.Instance.Commands.SingleOrDefault( x => x.Name == name );
 
 		if ( command == null )
@@ -102,7 +103,13 @@ public partial class Command : BaseNetworkable
 		if ( method == null )
 			return;
 
-		method.Invoke( null, args );
+		var parameters = new string[] { p1, p2, p3, p4, p5, p6 };
+
+		Log.Info( "RunCommand" );
+
+		Caller = client;
+		method.Invoke( null, parameters );
+		Caller = client;
 	}
 
 	public static Command GetRef( string name ) => AdminSystem.Instance.Commands.SingleOrDefault( x => x.Name == name );
