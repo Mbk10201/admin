@@ -1,0 +1,82 @@
+﻿AlertItem {
+    height: 75px;
+    width: 350px;
+    background-color: rgba(50, 50, 50, 0.5);
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    opacity: 1;
+    transition: all 0.5s ease-out;
+    overflow: hidden;
+
+    &:intro {
+        transition: all 0.1s ease-in;
+        right: 200px;
+    }
+
+    &:outro {
+        transition: all 1s ease-out;
+        right: 200px;
+    }
+
+    .icon {
+        height: 35px;
+        width: 35px;
+        padding: 2px;
+        border-radius: 5px;
+        margin: 10px;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        display: flex;
+        transition: all 1s ease-out;
+        transform: scale(1);
+        flex-shrink: 0;
+
+        i {
+            font-size: 25px;
+        }
+    }
+
+    .content {
+        width: 80%;
+        flex-direction: column;
+        opacity: 1;
+        display: flex;
+        transition: all 1s ease-out;
+        word-break: break-all;
+        transform: scale(1);
+        white-space: nowrap;
+
+        .title {
+        }
+
+        .message {
+            opacity: 0.5;
+        }
+    }
+
+    &.info {
+        .leftbar, .rightbar, .icon {
+            background-color: #49B1D2;
+        }
+    }
+
+    &.success {
+        .leftbar, .rightbar, .icon {
+            background-color: #39ffa0;
+        }
+    }
+
+    &.error {
+        .leftbar, .rightbar, .icon {
+            background-color: crimson;
+        }
+    }
+
+    &.warning {
+        .leftbar, .rightbar, .icon {
+            background-color: #EFA029;
+        }
+    }
+}

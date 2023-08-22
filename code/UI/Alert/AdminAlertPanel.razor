@@ -1,0 +1,26 @@
+﻿@using Sandbox.UI;
+@using Sandbox;
+
+@inherits Panel
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Alert
+
+<root>
+</root>
+
+@code {
+    AlertItem CurrentDisplayed { get; set; }
+
+    new public void Add(AlertBuilder item)
+    {
+        Game.AssertClient();
+
+        if (CurrentDisplayed != null)
+            CurrentDisplayed.Delete(true);
+
+        CurrentDisplayed = AddChild<AlertItem>();
+        CurrentDisplayed.Title = item.Title;
+        CurrentDisplayed.Message = item.Message;
+        CurrentDisplayed.Type = item.Type;
+    }
+}
