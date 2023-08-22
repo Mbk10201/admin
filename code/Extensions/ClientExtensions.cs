@@ -13,6 +13,8 @@ public static class ClientExtensions
 		return true;
 	}
 
+	public static bool IsMuted( this IClient client ) => AdminSystem.Instance.MutedClients.Contains( client );
+
 	public static void AddRole( this IClient client, long roleid )
 	{
 		User.AddRole( client.SteamId, roleid );
@@ -62,7 +64,13 @@ public static class ClientExtensions
 
 	public static bool CanTarget( this IClient client, IClient target )
 	{
-		return (client.GetHighestRole().ImmunityLevel > target.GetHighestRole().ImmunityLevel);
+		var clientImmunity = client.GetHighestRole().ImmunityLevel;
+		var targetImmunity = target.GetHighestRole().ImmunityLevel;
+
+		if ( clientImmunity > targetImmunity || clientImmunity == targetImmunity )
+			return true;
+
+		return false;
 	}
 
 	public static bool HasCommandAccess( this IClient client, string name ) 
