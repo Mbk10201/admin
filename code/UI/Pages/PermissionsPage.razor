@@ -132,7 +132,7 @@
                                 </div>
                             </div>
                             <div class="actions">
-                                @if (SelectedPermFrom == "")
+                                @if (SelectedCommandFrom == "")
                                 {
                                     <button class="disabled">
                                         <i>near_me_disabled</i>
@@ -141,7 +141,7 @@
                                 else
                                 {
                                     <button tooltip="Transfer" onclick=@(()=> Switch())>
-                                        <i>@(SelectedPermFrom == "current" ? "arrow_forward" : "arrow_back")</i>
+                                        <i>@(SelectedCommandFrom == "current" ? "arrow_forward" : "arrow_back")</i>
                                     </button>
                                 }
                             </div>
@@ -180,7 +180,6 @@
     IList<Permission> List => AdminSystem.Instance.Permissions;
 
     Permission Selected { get; set; }
-    string SelectedPermFrom = "";
     bool EditPermName = false;
     bool EditPermDescription = false;
     TextEntry EditPermEntry;
@@ -197,7 +196,7 @@
         Selected = Permission.GetRef(name);
     }
 
-    void Select(Permission selection)
+    void Select(Permission selection )
     {
         if (Selected == selection)
             Selected = null;

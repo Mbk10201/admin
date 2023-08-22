@@ -18,7 +18,9 @@
         <div class="left">
             <div class="header">
                 List
-                <button class="add" tooltip="Add new role" onclick=@(()=> GenerateRole())><i>add</i></button>
+                <button class="add" tooltip="Add new role" onclick=@(()=> GenerateRole())>
+                    <iconify icon="fluent:shield-add-20-regular" />
+                </button>
             </div>
             <div class="body">
                 @if (List.Count == 0)
@@ -64,7 +66,9 @@
                             <i onclick=@(()=> SaveRoleName())>save</i>
                         </button>
                     }
-                    <button class="delete" tooltip="Delete role" onclick=@(()=> DeleteRole())><i>delete</i></button>
+                    <button class="delete @(!Selected.CanBeRemoved ? "disabled":"")" tooltip="Delete role" onclick=@(()=> DeleteRole())>
+                        <iconify icon="fluent:shield-dismiss-24-regular" />
+                    </button>
                 </div>
                 <div class="body">
                     <div class="section">

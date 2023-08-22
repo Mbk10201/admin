@@ -98,11 +98,6 @@
 
     void Run()
     {
-        foreach (var param in Selected.Params)
-        {
-            Log.Info(param);
-        }
-
         Command.Run(Selected.Name);
     }
 

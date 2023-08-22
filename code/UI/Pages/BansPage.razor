@@ -1,4 +1,5 @@
-﻿@using Sandbox.UI;
+﻿@using Mbk.Admin.Models;
+@using Sandbox.UI;
 @using System.Collections.Generic;
 @using System;
 @using System.Linq;
@@ -88,7 +89,7 @@
 
     void DeleteBan()
     {
-        Commands.Unban(Selected.User.SteamId);
+        Commands.Unban(Selected.User.SteamId, Game.LocalClient.SteamId);
         Selected = null;
     }
 
