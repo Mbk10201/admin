@@ -36,9 +36,7 @@ public partial class Permission : BaseNetworkable
 	/// </summary>
 	[Net] public IList<string> Commands { get; private set; }
 
-	public Permission() 
-	{
-	}
+	public Permission() {}
 
 	public Permission( string name, string description, bool canberemoved = true ) : this()
 	{
@@ -75,9 +73,19 @@ public partial class Permission : BaseNetworkable
 		return list;
 	}
 
+	/// <summary>
+	///	Return a permission object by id reference.
+	/// </summary>
 	public static Permission GetRef( long id ) => AdminSystem.Instance.Permissions.SingleOrDefault( x => x.Id == id );
+
+	/// <summary>
+	///	Return a permission object by name reference.
+	/// </summary>
 	public static Permission GetRef( string name ) => AdminSystem.Instance.Permissions.SingleOrDefault( x => x.Name == name );
 
+	/// <summary>
+	///	Return a permission ist object by a list id references.
+	/// </summary>
 	public static IList<Permission> GetRef( IList<long> list )
 	{
 		IList<Permission> permissions = new List<Permission>();
@@ -88,6 +96,9 @@ public partial class Permission : BaseNetworkable
 		return permissions;
 	}
 
+	/// <summary>
+	///	Create a permission.
+	/// </summary>
 	[ConCmd.Server("createpermission")] 
 	public static void Create( string name, string description = "" ) 
 	{ 
@@ -95,6 +106,9 @@ public partial class Permission : BaseNetworkable
 		AdminSystem.SavePermissions();
 	}
 
+	/// <summary>
+	///	Update a permission name.
+	/// </summary>
 	[ConCmd.Server("updatepermissionname")] 
 	public static void UpdateName( long permid, string name ) 
 	{ 
@@ -102,6 +116,9 @@ public partial class Permission : BaseNetworkable
 		AdminSystem.SavePermissions();
 	}
 
+	/// <summary>
+	///	Update a permission description.
+	/// </summary>
 	[ConCmd.Server("updatepermissiondescription")] 
 	public static void UpdateDescription( long permid, string description ) 
 	{ 
@@ -109,12 +126,19 @@ public partial class Permission : BaseNetworkable
 		AdminSystem.SavePermissions();
 	}
 
+	/// <summary>
+	///	Delete a permission by id reference.
+	/// </summary>
 	[ConCmd.Server("deletepermission")] 
 	public static void Delete( long permid ) 
 	{ 
 		AdminSystem.Instance.Permissions.Remove( GetRef( permid ) );
 		AdminSystem.SavePermissions();
 	}
+
+	/// <summary>
+	///	Delete a permission by name reference.
+	/// </summary>
 	[ConCmd.Server("deletepermission")] 
 	public static void Delete( string permname ) 
 	{ 
@@ -122,6 +146,9 @@ public partial class Permission : BaseNetworkable
 		AdminSystem.SavePermissions();
 	}
 
+	/// <summary>
+	///	Delete a command access from permission.
+	/// </summary>
 	[ConCmd.Server( "removecommand" )] 
 	public static void RemoveCommand( long permid, string name ) 
 	{ 
@@ -129,6 +156,9 @@ public partial class Permission : BaseNetworkable
 		AdminSystem.SavePermissions();
 	}
 
+	/// <summary>
+	///	Add a command access to the permission.
+	/// </summary>
 	[ConCmd.Server( "addcommand" )] 
 	public static void AddCommand( long permid, string name ) 
 	{ 
