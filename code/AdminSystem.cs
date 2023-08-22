@@ -1,4 +1,5 @@
-﻿using Mbk.Admin.UI;
+﻿using Mbk.Admin.Models;
+using Mbk.Admin.UI;
 using Sandbox;
 using System.Collections;
 using System.Collections.Generic;
@@ -27,6 +28,8 @@ public partial class AdminSystem : Entity
 	[Net] public IList<User> Users { get; set; }
 
 	[Net] public IList<Ban> Bans { get; set; }
+
+	[Net] public IList<IClient> MutedClients { get; set; }
 
 	public static void SaveRoles()
 	{
@@ -97,9 +100,11 @@ public partial class AdminSystem : Entity
 
 		if ( !fs.FileExists( ROLESFILE ) )
 		{
-			_ = new Role( "Superadmin", 99 );
-			_ = new Role( "Admin", 80 );
-			_ = new Role( "Moderator", 50 );
+			_ = new Role( "Superadmin", 99, false );
+			_ = new Role( "Member", 1, false )
+			{
+				Default = true
+			};
 
 			fs.WriteJson( ROLESFILE, Roles );
 		}
@@ -108,20 +113,19 @@ public partial class AdminSystem : Entity
 
 		if ( !fs.FileExists( PERMISSIONFILE ) )
 		{
-			_ = new Permission( "Kick", "Allow to kick players", false );
-			_ = new Permission( "Ban", "Allow to ban players", false );
-			_ = new Permission( "Mute", "Allow to mute players", false );
-			_ = new Permission( "Go to", "Allow to self teleport to players", false );
-			_ = new Permission( "Bring", "Allow to bring players", false );
-			_ = new Permission( "Return", "Allow to return back players at last position before the bring or teleport", false );
-			_ = new Permission( "Slay", "Allow to slay players", false );
-			_ = new Permission( "Noclip", "Allow to set noclip to players", false );
+			_ = new Permission( "Management", "Ban / Kick / Mute / Slay", false );
+			_ = new Permission( "Fun", "Slap / Freeze / Ignite / Slap", false );
+			_ = new Permission( "Teleportation", "Goto / Bring / Return", false );
+			_ = new Permission( "Noclip", "Allow to set noclip to players", false);
 			_ = new Permission( "Spectate", "Allow to spectate players", false );
-			_ = new Permission( "Set Name", "Allow to rename players", false );
-			_ = new Permission( "Slap", "Allow to slap players", false );
-			_ = new Permission( "Freeze", "Allow to freeze players", false );
-			_ = new Permission( "Ignite", "Allow to ignite players", false );
+			_ = new Permission( "Set Name", "Allow to rename players", false);
 			_ = new Permission( "Edit Roles", "Allow to edit roles (Only < immunity)", false );
+
+			foreach(var perm in Permissions)
+			{
+				Roles.Single( x => x.Name == "Superadmin" ).Permissions.Add( perm.Id );
+			}
+			SaveRoles();
 
 			fs.WriteJson( PERMISSIONFILE, Permissions );
 		}
@@ -159,7 +163,10 @@ public partial class AdminSystem : Entity
 
 		if ( user is null )
 		{
-			Instance.Users.Add( new(client.SteamId, client.Name));
+			User userItem = new User( client.SteamId, client.Name );
+			userItem.Roles.Add( Role.GetDefault().Id );
+
+			Instance.Users.Add( userItem );
 			AdminSystem.SaveUsers();
 			Log.Info( "[AdminSystem] new user detected & added" );
 		}
