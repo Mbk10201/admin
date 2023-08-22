@@ -26,6 +26,9 @@ public partial class User : BaseNetworkable
 		Name = name;
 	}
 
+	/// <summary>
+	///	Add a role to the self.
+	/// </summary>
 	[ConCmd.Server]
 	public static void AddRole( long roleid )
 	{
@@ -43,6 +46,9 @@ public partial class User : BaseNetworkable
 		}
 	}
 
+	/// <summary>
+	///	Add a role to a player by name reference.
+	/// </summary>
 	[ConCmd.Server("AddRoleByName")]
 	public static void AddRole( string playername, long roleid )
 	{
@@ -60,6 +66,9 @@ public partial class User : BaseNetworkable
 		}
 	}
 
+	/// <summary>
+	///	Add a role to a player by steamid reference.
+	/// </summary>
 	[ConCmd.Server( "AddRoleBySteamID" )]
 	public static void AddRole( long steamid, long roleid )
 	{
@@ -77,6 +86,10 @@ public partial class User : BaseNetworkable
 		}
 	}
 
+	/// <summary>
+	///	Kick player
+	///	Should be called from the server !
+	/// </summary>
 	[ClientRpc]
 	public static void KickPlayer( )
 	{
