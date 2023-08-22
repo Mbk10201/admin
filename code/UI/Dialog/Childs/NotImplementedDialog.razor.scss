@@ -1,4 +1,4 @@
-KickDialog {
+NotImplementedDialog {
     flex-direction: column;
 
     .title {
@@ -14,28 +14,17 @@ KickDialog {
         flex-direction: column;
         height: 75%;
         width: 50%;
-        gap: 25px;
 
-        div {
+        .property {
+            height: 256px;
             width: 100%;
             flex-direction: column;
-            transition: all 0.5s ease-in;
 
             TextEntry {
                 flex-grow: 0;
+                height: 30px;
                 width: 100%;
-                border-radius: 10px;
                 border: 1.5px solid grey;
-                transition: all 0.5s ease-in;
-                overflow-x: scroll;
-
-                &.required {
-                    border: 1.5px solid rgba(244, 87, 37, .32);
-                }
-
-                &.valid {
-                    border: 1.5px solid rgba(74, 201, 155, .32);
-                }
             }
         }
     }
@@ -63,7 +52,6 @@ KickDialog {
             }
 
             &.disabled {
-                //pointer-events: none;
                 background-color: rgba(244, 87, 37, .32);
             }
         }

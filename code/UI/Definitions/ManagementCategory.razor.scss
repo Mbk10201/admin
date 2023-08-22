@@ -9,7 +9,7 @@ ManagementCategory {
     button {
         padding: 25px 80px;
         border-radius: 10px;
-        background-color: rgba(25, 25, 25, .64);
+        background-color: rgba(74, 201, 155, .32);
         align-items: center;
         cursor: pointer;
         transition: all 0.2s ease-in;
@@ -22,20 +22,27 @@ ManagementCategory {
             gap: 5px;
         }
 
-        i {
+        Iconify {
+            width: 20px;
             font-family: MaterialIcons;
             font-size: 25px;
             transition: all 0.2s ease-in;
+            align-items: center;
         }
 
         &:hover {
             transform: scale(1.02);
             box-shadow: 0 2px 40px rgba(0,0,0,0.3);
-            border-color:dodgerblue;
+            border-color: dodgerblue;
 
             i {
                 //color: yellow;
             }
+        }
+
+        &.disabled {
+            pointer-events: none;
+            background-color: rgba(255, 199, 0, .4);
         }
     }
 }

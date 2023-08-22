@@ -4,6 +4,7 @@
 @using Mbk.Admin;
 @using Sandbox;
 @using System.Linq;
+@using System;
 
 @inherits Panel
 @implements IAdminPlayerCategory
@@ -25,11 +26,11 @@
     <button><span><i>local_fire_department</i>Ignite</span></button>
     <button onclick=@(()=> DialogLayout.Show<RoleDialog>(Player))><span><i>security</i>Roles</span></button>*@
     
-    @foreach(var command in Game.LocalClient.GetCommandsAccess().Where(x => x.ClientAction == true))
+    @foreach (var command in Game.LocalClient.GetCommandsAccess().Where(x => (x.ClientAction == true) && (x.DisplayInUI == true)))
     {
-        <button>
+        <button class="@(!CanTarget() ? "disabled" : "")" onclick=@(()=> ShowDialog(command))>
             <span>
-                <i>@command.Icon</i>
+                <iconify icon="@command.Icon" />
                 @command.Name
             </span>
         </button>
@@ -39,4 +40,41 @@
 @code {
     public string CategoryName => "Management";
     public IClient Player { get; set; }
+
+    void ShowDialog(Command command)
+    {
+        if (command.Params.Count > 0)
+        {
+            if(command.Params.Count == 2)
+            {
+                var first = command.Params["steamid"];
+                var second = command.Params["adminid"];
+
+                if (first != null && second != null)
+                {
+                    Command.Run(command.Name, Player.SteamId.ToString(), Game.LocalClient.SteamId.ToString());
+                    return;
+                }
+            }
+
+            TypeDescription type = TypeLibrary.GetType(command.DialogType);
+            var panel = TypeLibrary.Create<Panel>(type.TargetType);
+            (panel as IDialog).Player = Player;
+            (panel as IDialog).TargetCommand = command;
+            DialogLayout.Instance.AddChild(panel);
+        }
+        else
+            Command.Run(command.Name);
+    }
+
+    bool CanTarget()
+    {
+        /*if (!Game.LocalClient.CanTarget(Player))
+            return false;
+
+        if (Game.LocalClient == Player.Client)
+            return false;*/
+
+        return true;
+    }
 }
