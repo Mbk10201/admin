@@ -108,8 +108,9 @@ AdminUI {
                         font-size: 25px;
                     }
 
-                    i {
-                        font-size: 30px;
+                    iconify {
+                        height:32px;
+                        width:32px;
                     }
 
                     .activebadge {
@@ -185,7 +186,7 @@ AdminUI {
 
             .navs {
                 a {
-                    i {
+                    iconify {
                         display: none;
                     }
 
