@@ -13,14 +13,13 @@
 
 <root>
     <span class="title">@TargetCommand.Name</span>
-    <span>Target: @Player.Name</span>
     <panel class="dialogbody">
         <div>
-            <span>Reason</span>
-            <TextEntry @ref="Reason" class="@(Reason.Text == "" ? "required" : "valid")"></TextEntry>
+            <span>Hostname</span>
+            <TextEntry @ref="HostnameEntry" class="@(HostnameEntry.Text == "" ? "required" : "valid")"></TextEntry>
         </div>
         <div>
-            <span>Your are about to kick @Player.Name for @Reason.Text.</span>
+            <span>Your are about to rename the server to @HostnameEntry.Text</span>
         </div>
     </panel>
     <div class="dialogfooter">
@@ -35,38 +34,38 @@
     public IClient Player { get; set; }
     public Command TargetCommand { get; set; }
     public LogObject TargetLog { get; set; }
-    TextEntry Reason { get; set; }
+    TextEntry HostnameEntry { get; set; }
 
     bool CanBeRun()
     {
-        if (Reason.Text == "")
+        if (HostnameEntry.Text == "")
             return false;
-
 
         return true;
     }
 
     void Submit()
     {
-        if (Reason.Text == "")
+        if (HostnameEntry.Text == "")
         {
             Alert.Add(new()
             {
                 Title = "Required",
-                Message = "Reason field is required",
+                Message = "Hostname field is required",
                 Type = eAlertType.Error
             });
+
 
             return;
         }
 
         Delete();
-        
-        Command.Run(TargetCommand.Name, Player.SteamId.ToString(), Game.LocalClient.SteamId.ToString(), Reason.Text);
+
+        Command.Run(TargetCommand.Name, HostnameEntry.Text);
     }
 
     protected override int BuildHash()
     {
-        return HashCode.Combine(DateTime.Now + Reason.Text);
+        return HashCode.Combine(DateTime.Now + HostnameEntry.Text);
     }
 }

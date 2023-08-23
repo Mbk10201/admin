@@ -1,0 +1,49 @@
+﻿@using Mbk.Admin.Logs;
+@using Sandbox.UI;
+@using Sandbox;
+@using TaigaUI.Core.Components;
+@using System.Collections.Generic;
+
+@inherits Panel
+@implements IDialog
+@attribute [StyleSheet]
+@namespace Mbk.Admin.UI.Dialog.Childs
+
+<root>
+    <span class="title">@TargetLog.Name</span>
+    <span>Description: @TargetLog.Description</span>
+    <span>Category: @TargetLog.Category</span>
+    <panel class="dialogbody">
+        <div>
+
+        </div>
+        <div> 
+            <span>@TargetLog.Format</span> 
+            <span>@TargetLog.Timestamp</span> 
+        </div>
+    </panel>
+    <button class="close">
+        <i @onclick=@(()=> Delete()) tooltip="Close">close</i>
+    </button>
+</root>
+
+@code {
+    public IClient Player { get; set; }
+    public Command TargetCommand { get; set; }
+    public LogObject TargetLog { get; set; }
+    Dictionary<string, string> Properties { get; set; }
+
+    protected override void OnAfterTreeRender(bool firstTime)
+    {
+        base.OnAfterTreeRender(firstTime);
+
+        if( firstTime )
+        {
+            foreach( var property in TypeLibrary.GetPropertyDescriptions(TargetLog))
+            {
+                var value = TypeLibrary.GetPropertyValue(property, property.Name);
+                Properties.Add(property.Name, value.ToString());
+            }
+        }
+    }
+}

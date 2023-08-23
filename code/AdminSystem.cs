@@ -1,15 +1,21 @@
-﻿using Mbk.Admin.Models;
+﻿using Mbk.Admin.Logs;
+using Mbk.Admin.Models;
 using Mbk.Admin.UI;
 using Sandbox;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Mbk.Admin;
 
 [Library]
-[Display( Name = "Admin system" ), Category( "Globals" ), Icon( "admin_panel_settings" )]
+[Display( Name = "Admin system" ), Category( "MBK" ), Icon( "admin_panel_settings" )]
 public partial class AdminSystem : Entity
 {
 	public static AdminSystem Instance { get; private set; }
@@ -18,6 +24,8 @@ public partial class AdminSystem : Entity
 	const string PERMISSIONFILE = "admin_permissions.json";
 	const string USERFILE = "admin_users.json";
 	const string BANFILE = "admin_bans.json";
+	const string LOGFILE = "admin_logs.json";
+	const string TESTLOGFILE = "admin_testlogs.json";
 
 	[Net] public IList<Role> Roles { get; set; }
 
@@ -30,6 +38,8 @@ public partial class AdminSystem : Entity
 	[Net] public IList<Ban> Bans { get; set; }
 
 	[Net] public IList<IClient> MutedClients { get; set; }
+
+	[Net] public IList<LogObject> Logs { get; set; }
 
 	public static void SaveRoles()
 	{
@@ -49,6 +59,21 @@ public partial class AdminSystem : Entity
 	public static void SaveBans()
 	{
 		fs.WriteJson( BANFILE, Instance.Bans );
+	}
+
+	public static void SaveLogs()
+	{
+
+		JsonSerializerOptions options = new JsonSerializerOptions
+		{
+			ReadCommentHandling = JsonCommentHandling.Skip,
+			PropertyNameCaseInsensitive = true,
+			AllowTrailingCommas = true,
+			WriteIndented = true,
+			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+			//ReferenceHandler = ReferenceHandler.Preserve
+		};
+		fs.WriteAllText( LOGFILE, JsonSerializer.Serialize<object>( Instance.Logs, options ) );
 	}
 
 	public AdminSystem()
@@ -96,6 +121,9 @@ public partial class AdminSystem : Entity
 		Bans = new List<Ban>();
 		Bans?.Clear();
 
+		Logs = new List<LogObject>();
+		Logs?.Clear();
+
 		Command.Load();
 
 		if ( !fs.FileExists( ROLESFILE ) )
@@ -141,6 +169,11 @@ public partial class AdminSystem : Entity
 			fs.WriteJson( BANFILE, Bans );
 		else
 			Bans = fs.ReadJsonOrDefault( BANFILE, new List<Ban>() );
+
+		if ( !fs.FileExists( LOGFILE ) )
+			fs.WriteJson( LOGFILE, Logs );
+		else
+			Logs = fs.ReadJsonOrDefault( LOGFILE, new List<LogObject>() );
 	}
 
 	public static void Toggle() => AdminUI.Instance.Toggle();
@@ -182,5 +215,29 @@ public partial class AdminSystem : Entity
 				client.Kick();
 			}
 		}
+	}
+
+	[ConCmd.Server]
+	public static void WriteLog( LogObject log )
+	{
+		Game.AssertServer();
+
+		Instance.Logs.Add( log );
+		SaveLogs();
+
+		foreach(var x in Instance.Logs)
+		{
+			Log.Info( x );
+		}
+
+		Event.Run( OnLogWrite, log );
+	}
+
+	public const string OnLogWrite = "onlogwrite";
+
+	[MethodArguments( new Type[] { typeof( LogObject ) } )]
+	public class OnLogWriteAttribute : EventAttribute
+	{
+		public OnLogWriteAttribute() : base( OnLogWrite ) { }
 	}
 }

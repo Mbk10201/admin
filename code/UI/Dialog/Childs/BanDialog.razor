@@ -4,6 +4,7 @@
 @using System.Collections.Generic;
 @using System;
 @using Mbk.Admin.UI.Alert;
+@using Mbk.Admin.Logs;
 
 @inherits Panel
 @implements IDialog
@@ -37,6 +38,7 @@
 @code {
     public IClient Player { get; set; }
     public Command TargetCommand { get; set; }
+    public LogObject TargetLog { get; set; }
     TextEntry Reason { get; set; }
     TextEntry Timestamp { get; set; }
 

@@ -2,6 +2,7 @@
 @using Sandbox;
 @using TaigaUI.Core.Components;
 @using System.Collections.Generic;
+@using Mbk.Admin.Logs;
 
 @inherits Panel
 @implements IDialog
@@ -28,6 +29,7 @@
 @code {
     public IClient Player { get; set; }
     public Command TargetCommand { get; set; }
+    public LogObject TargetLog { get; set; }
     public Panel BodyPanel { get; set; }
     public Dictionary<string, object> PropertiesValues { get; set; } = new();
     public Dictionary<string, Panel> PropertiesPanels { get; set; } = new();

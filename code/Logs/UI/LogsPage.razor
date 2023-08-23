@@ -1,0 +1,128 @@
+﻿@using Mbk.Admin.UI.Dialog;
+@using Mbk.Admin.UI.Dialog.Childs;
+@using Sandbox;
+@using Sandbox.Razor;
+@using Sandbox.UI;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System;
+
+@page "/logs/main"
+@inherits Panel
+@attribute [StyleSheet]
+@implements IAdminPage
+@namespace Mbk.Admin.Logs
+
+@if (List is null)
+    return;
+
+<root>
+    <span class="title">Logs</span>
+    <div class="body">
+        <div class="left">
+            @foreach (var category in List.GroupBy(x => x.Category))
+            {
+                <div class="category">
+                    <div class="header">
+                        @category.Key
+                    </div>
+                    <div class="body">
+                        <span class="logtype @(SelectedType == "all" && SelectedCategory == category.Key ? "active" : "")" onclick=@(()=> Select(category.Key, "all"))>All</span>
+                        @foreach (var log in category.GroupBy(x => x.Name))
+                        {
+                            <span class="logtype @(SelectedType == log.Key && SelectedCategory == category.Key ? "active" : "")" onclick=@(()=> Select(category.Key, log.Key))>@log.Key</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="right">
+            <div class="header">
+                <div class="column">Time</div>
+                <div class="column @(Filter ? "filtered" : "")" style="cursor:pointer;" onclick=@(()=> Filter = !Filter)>
+                    Type
+                    <i>expand_less</i>
+                </div>
+                <div class="column">Content</div>
+            </div>
+            <div class="body">
+                @if (SelectedType == "")
+                {
+                    <div class="empty">
+                        No log category selected
+                    </div>
+                }
+                else
+                {
+                    @{
+                        IList<LogObject> LogsList = null;
+
+                        if (SelectedType == "all")
+                            LogsList = List.Where(x => x.Category == SelectedCategory).ToList();
+                        else
+                            LogsList = List.Where(x => (x.Name == SelectedType) && (x.Category == SelectedCategory) ).ToList();
+
+                        if (LogsList is not null)
+                        {
+                            foreach (var log in LogsList)
+                            {
+                                <div class="log" onclick=@(()=> ShowDialog(log))>
+                                    <div class="column">
+                                        @{
+                                            DateTime date = DateTimeOffset.FromUnixTimeSeconds(log.Timestamp).DateTime;
+                                            <span>@date</span>
+                                        }
+                                    </div>
+                                    <div class="column">@log.ClassName</div>
+                                    <div class="column">
+                                        @log.Format
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div>
+            <div class="footer">
+
+            </div>
+        </div>
+    </div>
+</root>
+
+@code {
+    public string PageName => "Logs";
+    public string Icon => "carbon:flow-logs-vpc";
+    public string HRef => "/logs/main";
+    string SelectedCategory { get; set; }
+    string SelectedType { get; set; }
+    bool Filter = false;
+
+    IList<LogObject> List => AdminSystem.Instance.Logs;
+
+    void Select(string category, string type)
+    {
+        if (SelectedType == type && SelectedCategory == category)
+        {
+            SelectedCategory = "";
+            SelectedType = "";
+        }
+        else
+        {
+            SelectedCategory = category;
+            SelectedType = type;
+        }
+
+    }
+
+    void ShowDialog(LogObject log)
+    {
+        DialogLayout.Show<LogDialog>(log);
+    }
+
+    protected override int BuildHash()
+    {
+        return HashCode.Combine(DateTime.Now.ToString() + List);
+    }
+}

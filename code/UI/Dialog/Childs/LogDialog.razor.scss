@@ -1,0 +1,24 @@
+LogDialog {
+    flex-direction: column;
+
+    .title {
+        position: absolute;
+        top: 20px;
+        font-size: 35px;
+        text-transform: capitalize;
+    }
+
+    .dialogbody {
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 75%;
+        width: 50%;
+        
+        div {
+            width: 100%;
+            flex-direction: column;
+            transition: all 0.5s ease-in;
+        }
+    }
+}

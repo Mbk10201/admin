@@ -1,4 +1,5 @@
-﻿@using Sandbox.UI;
+﻿@using Mbk.Admin.UI.Dialog;
+@using Sandbox.UI;
 @using System.Collections.Generic;
 @using System;
 @using System.Linq;
@@ -54,9 +55,12 @@
                     </div>
                 </div>
                 <div class="body">
-                    <div class="section">
-                        <button onclick=@(()=> Run())>Run</button>
-                    </div>
+                    @if(!Selected.ClientAction)
+                    {
+                        <div class="section">
+                            <button onclick=@(()=> Run())>Run</button>
+                        </div>
+                    }
                     <div class="section">
                         <span class="name">Permissions</span>
                         <div class="permissions">
@@ -98,7 +102,15 @@
 
     void Run()
     {
-        Command.Run(Selected.Name);
+        if (Selected.Params.Count > 0)
+        {
+            TypeDescription type = TypeLibrary.GetType(Selected.DialogType);
+            var panel = TypeLibrary.Create<Panel>(type.TargetType);
+            (panel as IDialog).TargetCommand = Selected;
+            DialogLayout.Instance.AddChild(panel);
+        }
+        else
+            Command.Run(Selected.Name);
     }
 
     protected override int BuildHash()
