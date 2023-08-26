@@ -12,7 +12,7 @@ using Mbk.Admin.Logs;
 
 namespace Mbk.Admin;
 
-public static class Commands
+public static partial class Commands
 {
 	[DiscordGameEvent( "Client Kicked", "client_kick", "When a client has been kicked from the server." )]
 	[Command( "Kick", typeof(KickDialog), "mdi:exit-run", clientaction: true)]
@@ -462,6 +462,7 @@ public static class Commands
 		if ( client.Pawn == null )
 			return;
 
+		User.Get(client).LastPosition = client.Position;
 		client.Pawn.Position = admin.Pawn.Position + Vector3.Up * 100;
 		Sound.FromScreen( "teleport" );
 
@@ -514,7 +515,89 @@ public static class Commands
 		}
 	}
 
-	[DiscordGameEvent( "Client bring", "client_ignite", "When a admin ignite a player." )]
+	[DiscordGameEvent( "Return back client", "return_back_client", "When a admin send back the client to last position." )]
+	[Command( "Return", typeof( NotImplementedDialog ), "game-icons:teleport", clientaction: true )]
+	public static void ReturnBack( long steamid, long adminid )
+	{
+		var client = Game.Clients.SingleOrDefault( x => x.SteamId == steamid );
+		var admin = Game.Clients.SingleOrDefault( x => x.SteamId == adminid );
+
+		if ( steamid == adminid )
+		{
+			Alert.Add( To.Single( admin ), "Impossible", "You cannot return yourself !", eAlertType.Error );
+			return;
+		}
+		else if ( !admin.CanTarget( client ) )
+		{
+			Alert.Add( To.Single( admin ), "Impossible", $"{client.Name} has more immunity than you !", eAlertType.Error );
+			return;
+		}
+
+		if ( client == null )
+			return;
+
+		if ( client.Pawn == null )
+			return;
+
+		if ( User.Get( client ).LastPosition == Vector3.Zero )
+			return;
+
+		var lastpos = User.Get( client ).LastPosition;
+		
+		Sound.FromScreen( "teleport" );
+		AdminSystem.WriteLog( new LogReturn( User.Get( client ), User.Get( admin ), client.Pawn.Position, lastpos ) );
+		Alert.Add( To.Single( admin ), "Success", $"You have successfully returned {client.Name}", eAlertType.Success );
+
+		client.Pawn.Position = lastpos;
+		User.Get( client ).LastPosition = Vector3.Zero;
+
+		var EventSettings = DiscordSystem.GetGameEvent( "return_back_client" );
+
+		if ( EventSettings.Broadcast )
+		{
+			var message = new MessageForm();
+
+			if ( EventSettings.DisplayEmbed )
+			{
+				message = new()
+				{
+					Embeds = new()
+					{
+						new Embed()
+						{
+							Title = EventSettings.Name,
+							Description = $"{admin.Name} has returned back {client.Name}.",
+							Color = EventSettings.GetColor()
+						}
+					}
+				};
+			}
+			else
+			{
+				message = new()
+				{
+					Content = $"{admin.Name} has returned back {client.Name}."
+				};
+			}
+
+			if ( EventSettings.UseAsBot && Client.Instance.TokenValid )
+			{
+				if ( EventSettings.ChannelID is null )
+					return;
+
+				Client.SendMessage( EventSettings.ChannelID.Value, message );
+			}
+			else
+			{
+				if ( EventSettings.Webhook == string.Empty )
+					return;
+
+				Webhook.SendMessage( EventSettings.Webhook, message );
+			}
+		}
+	}
+
+	[DiscordGameEvent( "Client ignite", "client_ignite", "When a admin ignite a player." )]
 	[Command( "Ignite", typeof( NotImplementedDialog ), "gridicons:fire", clientaction: true )]
 	public static void Ignite( long steamid, long adminid )
 	{
@@ -532,6 +615,14 @@ public static class Commands
 			Alert.Add( To.Single( admin ), "Impossible", $"{client.Name} has more immunity than you !", eAlertType.Error );
 			return;
 		}
+
+		var particlesys = Cloud.ParticleSystem( "https://asset.party/sugmagaming/fireparticle" );
+
+		var particle = new ParticleSystemEntity()
+		{
+			ParticleSystemName = particlesys.Name,
+			Parent = client.Pawn as Entity
+		};
 
 		AdminSystem.WriteLog( new LogIgnite( User.Get( client ), User.Get( admin )) );
 		Alert.Add( To.Single( admin ), "Success", $"You have successfully ignited {client.Name}", eAlertType.Success );
@@ -702,6 +793,153 @@ public static class Commands
 				message = new()
 				{
 					Content = $"{client.Name} has been unfreezed by {admin.Name}.",
+				};
+			}
+
+			if ( EventSettings.UseAsBot && Client.Instance.TokenValid )
+			{
+				if ( EventSettings.ChannelID is null )
+					return;
+
+				Client.SendMessage( EventSettings.ChannelID.Value, message );
+			}
+			else
+			{
+				if ( EventSettings.Webhook == string.Empty )
+					return;
+
+				Webhook.SendMessage( EventSettings.Webhook, message );
+			}
+		}
+	}
+
+	[DiscordGameEvent( "Client health", "client_health", "When a admin changes a players health." )]
+	[Command( "Set Health", typeof( SetHealthDialog ), "akar-icons:health", clientaction: true )]
+	public static void SetHealth( long steamid, long adminid, float value )
+	{
+		var client = Game.Clients.SingleOrDefault( x => x.SteamId == steamid );
+		var admin = Game.Clients.SingleOrDefault( x => x.SteamId == adminid );
+
+		if ( client == null )
+			return;
+
+		if ( client.Pawn == null )
+			return;
+
+		if ( !admin.CanTarget( client ) )
+		{
+			Alert.Add( To.Single( admin ), "Impossible", $"{client.Name} has more immunity than you !", eAlertType.Error );
+			return;
+		}
+
+		var pawn = client.Pawn as Entity;
+		pawn.Health = value;
+
+		AdminSystem.WriteLog( new LogSetHealth( User.Get(client), User.Get( admin ), value ) );
+		Alert.Add( To.Single( admin ), "Success", $"You have successfully set {client.Name} health to {value}", eAlertType.Success );
+
+		var EventSettings = DiscordSystem.GetGameEvent( "client_health" );
+
+		if ( EventSettings.Broadcast )
+		{
+			var message = new MessageForm();
+
+			if ( EventSettings.DisplayEmbed )
+			{
+				message = new()
+				{
+					Embeds = new()
+					{
+						new Embed()
+						{
+							Title = EventSettings.Name,
+							Description = $"{admin.Name} has set {client.Name} health to {value}.",
+							Color = EventSettings.GetColor()
+						}
+					}
+				};
+			}
+			else
+			{
+				message = new()
+				{
+					Content = $"{admin.Name} has set {client.Name} health to {value}.",
+				};
+			}
+
+			if ( EventSettings.UseAsBot && Client.Instance.TokenValid )
+			{
+				if ( EventSettings.ChannelID is null )
+					return;
+
+				Client.SendMessage( EventSettings.ChannelID.Value, message );
+			}
+			else
+			{
+				if ( EventSettings.Webhook == string.Empty )
+					return;
+
+				Webhook.SendMessage( EventSettings.Webhook, message );
+			}
+		}
+	}
+
+	[DiscordGameEvent( "Client damage", "client_damage", "When a admin gives damages to a player." )]
+	[Command( "Give damage", typeof( GiveDamageDialog ), "akar-icons:health", clientaction: true )]
+	public static void GiveDamage( long steamid, long adminid, float damage )
+	{
+		var client = Game.Clients.SingleOrDefault( x => x.SteamId == steamid );
+		var admin = Game.Clients.SingleOrDefault( x => x.SteamId == adminid );
+
+		if ( client == null )
+			return;
+
+		if ( client.Pawn == null )
+			return;
+
+		if ( !admin.CanTarget( client ) )
+		{
+			Alert.Add( To.Single( admin ), "Impossible", $"{client.Name} has more immunity than you !", eAlertType.Error );
+			return;
+		}
+
+		var pawn = client.Pawn as Entity;
+		pawn.TakeDamage( new DamageInfo()
+		{
+			Attacker = admin.Pawn as Entity,
+			Damage = damage
+		} );
+
+		AdminSystem.WriteLog( new LogDamage( client.Pawn as Entity, admin.Pawn as Entity, damage) );
+
+		Alert.Add( To.Single( admin ), "Success", $"You have successfully given {damage} damages to {client.Name}.", eAlertType.Success );
+
+		var EventSettings = DiscordSystem.GetGameEvent( "client_damage" );
+
+		if ( EventSettings.Broadcast )
+		{
+			var message = new MessageForm();
+
+			if ( EventSettings.DisplayEmbed )
+			{
+				message = new()
+				{
+					Embeds = new()
+					{
+						new Embed()
+						{
+							Title = EventSettings.Name,
+							Description = $"You have successfully given {damage} damages to {client.Name}.",
+							Color = EventSettings.GetColor()
+						}
+					}
+				};
+			}
+			else
+			{
+				message = new()
+				{
+					Content = $"You have successfully given {damage} damages to {client.Name}."
 				};
 			}
 

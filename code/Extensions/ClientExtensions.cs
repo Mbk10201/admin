@@ -1,4 +1,5 @@
 ﻿using Sandbox;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,9 @@ public static class ClientExtensions
 
 	public static bool IsMuted( this IClient client ) => AdminSystem.Instance.MutedClients.Contains( client );
 
-	public static void AddRole( this IClient client, long roleid )
+	public static void GiveRole( this IClient client, long adminid, long roleid )
 	{
-		User.AddRole( client.SteamId, roleid );
+		User.GiveRole( client.SteamId, adminid, roleid );
 	}
 
 	public static Role GetHighestRole( this IClient client ) => Role.GetRef( client.GetRoles() ).MaxBy( x => x.ImmunityLevel );

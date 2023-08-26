@@ -7,15 +7,15 @@
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
-  "Resources": null,
+  "Resources": "*.scss\n*.svg",
   "MenuResources": null,
   "HasCode": true,
   "CodePath": "/code/",
   "PackageReferences": [
-    "local.base",
     "mbk.taiga_ui",
     "alex.iconify",
-    "mbk.discord_api"
+    "mbk.discord_api",
+    "local.base"
   ],
   "EditorReferences": null,
   "Metadata": {

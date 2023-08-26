@@ -1,0 +1,23 @@
+RolesCategory {
+    height: 100%;
+    width: 100%;
+    padding: 30px;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .role {
+        padding: 25px 80px;
+        border-radius: 10px;
+        background-color: rgba(0, 0, 0, 0.45);
+        align-items: center;
+        transition: all 0.2s ease-in;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid transparent;
+
+        span {
+            position:absolute;
+        }
+    }
+}

@@ -97,7 +97,6 @@ public partial class Command : BaseNetworkable
 		if ( AdminSystem.Instance.Commands.Contains( command ) )
 			return;
 
-		Log.Info( $"[Admin] New command registered: {command.Name}" );
 		AdminSystem.RegisterCommand( command );
 	}
 

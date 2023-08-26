@@ -16,11 +16,11 @@
     <span>Target: @Player.Name</span>
     <panel class="dialogbody">
         <div>
-            <span>Reason</span>
-            <TextEntry @ref="Reason" class="@(Reason.Text == "" ? "required" : "valid")"></TextEntry>
+            <span>Health value</span>
+            <TextEntry @ref="Value" class="@(Value.Text == "" ? "required" : "valid")" numeric="true"></TextEntry>
         </div>
         <div>
-            <span>Your are about to kick @Player.Name for @Reason.Text.</span>
+            <span>Your are about to set @Player.Name health to .</span>
         </div>
     </panel>
     <div class="dialogfooter">
@@ -35,25 +35,25 @@
     public IClient Player { get; set; }
     public Command TargetCommand { get; set; }
     public LogObject TargetLog { get; set; }
-    TextEntry Reason { get; set; }
+    TuiDropDown Dropdown { get; set; }
+    TextEntry Value { get; set; }
 
     bool CanBeRun()
     {
-        if (Reason.Text == "")
+        if (Value.Text == "")
             return false;
-
 
         return true;
     }
 
     void Submit()
     {
-        if (Reason.Text == "")
+        if (Value.Text == "")
         {
             Alert.Add(new()
             {
                 Title = "Required",
-                Message = "Reason field is required",
+                Message = "Value field is required",
                 Type = eAlertType.Error
             });
 
@@ -62,11 +62,11 @@
         
         Delete();
 
-        Command.Run(TargetCommand.Name, Player.SteamId.ToString(), Game.LocalClient.SteamId.ToString(), Reason.Text);
+        Command.Run(TargetCommand.Name, Player.SteamId.ToString(), Game.LocalClient.SteamId.ToString(), Value.Text);
     }
 
     protected override int BuildHash()
     {
-        return HashCode.Combine(DateTime.Now + Reason.Text);
+        return HashCode.Combine(DateTime.Now.ToString() + Value.Text);
     }
 }

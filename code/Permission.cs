@@ -32,7 +32,7 @@ public partial class Permission : BaseNetworkable
 	public bool CanBeRemoved { get; set; } = true;
 
 	/// <summary>
-	/// The list of commands thats this permission has .
+	/// The list of commands thats this permission has.
 	/// </summary>
 	[Net] public IList<string> Commands { get; private set; }
 
@@ -132,6 +132,11 @@ public partial class Permission : BaseNetworkable
 	[ConCmd.Server("deletepermission")] 
 	public static void Delete( long permid ) 
 	{ 
+		foreach( var role in AdminSystem.Instance.Roles )
+		{
+			role.Permissions.Remove( permid );
+		}
+		
 		AdminSystem.Instance.Permissions.Remove( GetRef( permid ) );
 		AdminSystem.SavePermissions();
 	}
@@ -141,8 +146,16 @@ public partial class Permission : BaseNetworkable
 	/// </summary>
 	[ConCmd.Server("deletepermission")] 
 	public static void Delete( string permname ) 
-	{ 
-		AdminSystem.Instance.Permissions.Remove( GetRef( permname ) );
+	{
+		var perm = GetRef( permname );
+		
+		foreach ( var role in AdminSystem.Instance.Roles )
+		{
+			role.Permissions.Remove( perm.Id );
+		}
+
+		AdminSystem.Instance.Permissions.Remove( perm );
+		AdminSystem.SaveRoles();
 		AdminSystem.SavePermissions();
 	}
 

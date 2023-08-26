@@ -1,6 +1,6 @@
 ﻿@using Sandbox.UI;
 @using Sandbox;
-@using Mbk.TaigaUI.Core.Components;
+@using TaigaUI.Core.Components;
 @using System.Collections.Generic;
 @using System;
 @using Mbk.Admin.UI.Alert;
@@ -16,11 +16,16 @@
     <span>Target: @Player.Name</span>
     <panel class="dialogbody">
         <div>
-            <span>Reason</span>
-            <TextEntry @ref="Reason" class="@(Reason.Text == "" ? "required" : "valid")"></TextEntry>
+            <span>Role ID</span>
+            <tui-dropdown @ref="Dropdown">
+                @foreach (var role in AdminSystem.Instance.Roles)
+                {
+                    <option>@role.Name</option>
+                }
+            </tui-dropdown>
         </div>
         <div>
-            <span>Your are about to kick @Player.Name for @Reason.Text.</span>
+            <span>Your are about to give @(Dropdown.Selected != null ? Role.GetRef(Dropdown.Selected.Value.ToString()).Name : "X") role to @Player.Name.</span>
         </div>
     </panel>
     <div class="dialogfooter">
@@ -35,25 +40,24 @@
     public IClient Player { get; set; }
     public Command TargetCommand { get; set; }
     public LogObject TargetLog { get; set; }
-    TextEntry Reason { get; set; }
+    TuiDropDown Dropdown { get; set; }
 
     bool CanBeRun()
     {
-        if (Reason.Text == "")
+        if (Dropdown.Selected == null)
             return false;
-
 
         return true;
     }
 
     void Submit()
     {
-        if (Reason.Text == "")
+        if (Dropdown.Selected == null)
         {
             Alert.Add(new()
             {
                 Title = "Required",
-                Message = "Reason field is required",
+                Message = "Role ID field is required",
                 Type = eAlertType.Error
             });
 
@@ -62,11 +66,11 @@
         
         Delete();
 
-        Command.Run(TargetCommand.Name, Player.SteamId.ToString(), Game.LocalClient.SteamId.ToString(), Reason.Text);
+        Command.Run(TargetCommand.Name, Player.SteamId.ToString(), Game.LocalClient.SteamId.ToString(), Dropdown.Selected.Value.ToString());
     }
 
     protected override int BuildHash()
     {
-        return HashCode.Combine(DateTime.Now + Reason.Text);
+        return HashCode.Combine(DateTime.Now);
     }
 }

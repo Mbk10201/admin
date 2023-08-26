@@ -1,0 +1,34 @@
+﻿@using Mbk.Admin.UI.Dialog;
+@using Mbk.Admin.UI.Dialog.Childs;
+@using Sandbox.UI;
+@using Mbk.Admin;
+@using Sandbox;
+@using System.Linq;
+@using System;
+@using System.Collections.Generic;
+
+@inherits Panel
+@implements IAdminPlayerCategory
+@attribute [StyleSheet]
+
+<root> 
+    @if (Roles.Count() == 0)
+    {
+        <span>@Player.Name has no roles.</span>
+    }
+    else
+    {
+        @foreach (var role in Roles)
+        {
+           <div class="role">
+                <span>@role.Name</span>
+           </div>
+        }
+    }
+</root>
+
+@code {
+    public string CategoryName => "Roles";
+    public IClient Player { get; set; }
+    IList<Role> Roles => Player.GetRolesRefs();
+}

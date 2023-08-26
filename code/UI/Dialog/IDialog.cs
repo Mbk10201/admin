@@ -18,7 +18,7 @@ public interface IDialog
 	Command TargetCommand { get; set; }
 
 	/// <summary>
-	/// This will auto implement the selected command from the admin logs page.
+	/// This will auto implement the selected log from the admin logs page.
 	/// (Optional)
 	/// </summary>
 	LogObject TargetLog { get; set; }

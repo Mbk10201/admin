@@ -67,12 +67,12 @@ public partial class AdminSystem : Entity
 		JsonSerializerOptions options = new JsonSerializerOptions
 		{
 			ReadCommentHandling = JsonCommentHandling.Skip,
-			PropertyNameCaseInsensitive = true,
-			AllowTrailingCommas = true,
-			WriteIndented = true,
-			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-			//ReferenceHandler = ReferenceHandler.Preserve
+			//PropertyNameCaseInsensitive = true,
+			//AllowTrailingCommas = true,
+			//WriteIndented = true,
+			//Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
 		};
+
 		fs.WriteAllText( LOGFILE, JsonSerializer.Serialize<object>( Instance.Logs, options ) );
 	}
 
@@ -187,6 +187,12 @@ public partial class AdminSystem : Entity
 			Game.RootPanel.AddChild<AdminUI>();
 	}
 
+	[ConCmd.Client( "openadmin" )]
+	public static void OpenAdmin()
+	{
+		AdminSystem.Toggle();
+	}
+
 	[GameEvent.Server.ClientJoined]
 	static void ClientJoin( ClientJoinedEvent ev )
 	{
@@ -224,11 +230,6 @@ public partial class AdminSystem : Entity
 
 		Instance.Logs.Add( log );
 		SaveLogs();
-
-		foreach(var x in Instance.Logs)
-		{
-			Log.Info( x );
-		}
 
 		Event.Run( OnLogWrite, log );
 	}

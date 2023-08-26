@@ -5,6 +5,7 @@
 @using Sandbox;
 @using System.Linq;
 @using System;
+@using System.Collections.Generic;
 
 @inherits Panel
 @implements IAdminPlayerCategory
@@ -26,20 +27,28 @@
     <button><span><i>local_fire_department</i>Ignite</span></button>
     <button onclick=@(()=> DialogLayout.Show<RoleDialog>(Player))><span><i>security</i>Roles</span></button>*@
     
-    @foreach (var command in Game.LocalClient.GetCommandsAccess().Where(x => (x.ClientAction == true) && (x.DisplayInUI == true)))
+    @if( list.Count() == 0)
     {
-        <button class="@(!CanTarget() ? "disabled" : "")" onclick=@(()=> ShowDialog(command))>
-            <span>
-                <iconify icon="@command.Icon" />
-                @command.Name
-            </span>
-        </button>
+        <span>You have no command access.</span>
+    }
+    else
+    {
+        @foreach (var command in list)
+        {
+            <button class="@(!CanTarget() ? "disabled" : "")" onclick=@(()=> ShowDialog(command))>
+                <span>
+                    <iconify icon="@command.Icon" />
+                    @command.Name
+                </span>
+            </button>
+        }
     }
 </root>
 
 @code {
     public string CategoryName => "Management";
     public IClient Player { get; set; }
+    IEnumerable<Command> list => Game.LocalClient.GetCommandsAccess().Where(x => (x.ClientAction == true) && (x.DisplayInUI == true));
 
     void ShowDialog(Command command)
     {

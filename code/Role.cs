@@ -1,4 +1,6 @@
-﻿using Sandbox;
+﻿using Mbk.Discord.Models;
+using Sandbox;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -70,9 +72,8 @@ public partial class Role : BaseNetworkable
 		AdminSystem.Instance.Roles.Add( this );
 	}
 
-	public void AddPermission(long id )
+	public void AddPermission( long id )
 	{
-		Log.Info( id );
 		Permissions.Add( id );
 	}
 
@@ -171,7 +172,13 @@ public partial class Role : BaseNetworkable
 	[ConCmd.Server("deleterole")] 
 	public static void Delete( long roleid ) 
 	{ 
+		foreach(var user in AdminSystem.Instance.Users)
+		{
+			user.Roles.Remove( roleid );
+		}
+
 		AdminSystem.Instance.Roles.Remove( GetRef( roleid ) );
+		AdminSystem.SaveUsers();
 		AdminSystem.SaveRoles();
 	}
 
@@ -180,8 +187,16 @@ public partial class Role : BaseNetworkable
 	/// </summary>
 	[ConCmd.Server("deleterole")] 
 	public static void Delete( string rolename ) 
-	{ 
-		AdminSystem.Instance.Roles.Remove( GetRef( rolename ) );
+	{
+		var role = GetRef( rolename );
+
+		foreach ( var user in AdminSystem.Instance.Users )
+		{
+			user.Roles.Remove( role.Id );
+		}
+
+		AdminSystem.Instance.Roles.Remove( role );
+		AdminSystem.SaveUsers();
 		AdminSystem.SaveRoles();
 	}
 

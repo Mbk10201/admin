@@ -111,6 +111,16 @@
 
     public void Toggle()
     {
+        if(Game.LocalClient.GetRoles().Count == 0)
+        {
+            Alert.Alert.Add(To.Single(Game.LocalClient), new()
+            {
+                Title = "No Access",
+                Message = "You have no access to the admin menu",
+                Type = Alert.eAlertType.Error
+            });
+        }
+
         IsOpen = !IsOpen;
         SetClass("open", IsOpen);
     }

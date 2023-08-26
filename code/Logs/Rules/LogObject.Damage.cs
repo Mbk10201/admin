@@ -8,10 +8,20 @@ public partial class LogDamage : LogObject
 	public override string Name => "Damage";
 	public override string Description => "When someone has been hit by a player or something else";
 
-	// Damage Event implementation
-	[Net] public float Damage { get; private set; }
+	/// <summary>
+	/// The victim entity
+	/// </summary>
 	[Net] public Entity Victim { get; private set; }
+
+	/// <summary>
+	/// The inflictor entity
+	/// </summary>
 	[Net] public Entity Inflictor { get; private set; }
+
+	/// <summary>
+	/// The damage amount
+	/// </summary>
+	[Net] public float Damage { get; private set; }
 
 	public LogDamage() { }
 
